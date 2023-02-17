@@ -1,3 +1,22 @@
+"""
+The given code is a python script for controlling a Turtlebot or a Summit robot using ROS (Robot Operating System). 
+It imports the necessary ROS packages and defines a RobotControl class that contains methods to control the robot's motion, laser sensors, 
+and publish commands to the robot.
+
+The class constructor takes an argument for the robot name, which defaults to "turtlebot". 
+The init method initializes the ROS node, checks if the robot's laser sensors are ready, 
+and creates publishers and subscribers for the robot's velocity and laser data.
+
+The script has methods to get the laser range data, move the robot forward/backward for a specified duration, 
+turn the robot in clockwise/anti-clockwise direction for a specified duration, and stop the robot.
+
+The publish_once_in_cmd_vel method is used to publish the velocity commands to the robot. 
+The stop_robot method sets the robot's velocity to zero to stop it.
+
+The laser_callback and summit_laser_callback methods are callback functions that get the laser range data.
+
+The script is designed to run until the user manually terminates the node or the program.
+"""
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
