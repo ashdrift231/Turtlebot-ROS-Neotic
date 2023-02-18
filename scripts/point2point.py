@@ -1,3 +1,29 @@
+"""
+The code accomplishes a task for a robot using a Python node.
+Controlling the robot's mobility is necessary to get it into the proper pose (position and orientation) in a 3D space.
+
+The script imports a bunch of ROS modules and packages, including geometry msgs.msg, nav msgs.msg, threading, and rospy.
+The math and numpy libraries are also utilized.
+
+Several variables and parameters required for the task are initialized by the Task1 class.
+It includes a constructor named __init__() that, among other things, initializes a lock and sets the ROS node's rate.
+
+Another method in the class called transform pose() accepts a position from the "world" frame and returns it in the "body" frame.
+It does this by changing the pose from one frame to the next using a rotation matrix (self.bTw).
+
+Every time the robot's odometry data is updated, the odometry callback() method is called.
+This technique reads the robot's current orientation and position, calculates its errors relative to the ideal posture, and sets the robot's velocity to move in the desired direction.The ROS topic /cmd vel receives the velocity's publication.
+
+The task is launched by calling the spin() method.
+The program executes a loop that fixes the desired posture to the value [3.0, 0.0, 0.0]
+while it waits for the odometry callback() function to be called and update the robot's position and orientation.
+The velocity needed to move the robot into the appropriate position is then calculated and published to /cmd vel.
+Until the node is turned off or the task is finished, this loop keeps going.
+
+The script as a whole uses a straightforward control method to get a robot into the required stance.
+It computes the error in the robot's location and orientation using the odometry data and bases the robot's velocity on this error.
+When the robot assumes the desired stance, the mission is finished.
+"""
 #! /usr/bin/env python3
 
 # import required libraries
