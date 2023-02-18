@@ -1,3 +1,21 @@
+"""
+The aforementioned node uses data from the LaserScan sensor to construct a wall-following behavior for a mobile robot.
+The robot's motion is managed by a Twist message that includes commands for linear and angular velocity in a two-dimensional plane.
+Finding the wall, turning left, and following the wall make up the three states of the behavior.
+
+The script subscribes to the /scan topic in order to receive LaserScan messages that contain measurements of the distance between the robot and nearby obstructions.
+The robot's proximity to a wall on its left side—which is supposed to be the one that needs to be followed—is calculated using the distances.
+
+The clbk laser callback function processes the LaserScan data and changes the global regions_ variable with the minimum distance values in the robot's five specified surrounding regions (right, front-right, front, front-left, and left).
+The next step is to decide what to do based on the current state and the distance measurements by calling the take action function.
+
+The robot travels forward and turns to the right while in the find wall state until it senses a wall to the left.
+The robot spins to the left in the turn left state until it is parallel to the wall on its left.
+The robot uses a proportional control law in the follow the wall state to advance while keeping a constant distance from the wall to its left.
+The take action function controls state transitions by examining the most recent distance readings and selecting the appropriate state in accordance with the preset conditions.
+The wall-following behavior can be activated or deactivated using the wall follower switch ROS service, which controls the state machine.
+"""
+
 #! /usr/bin/env python
 
 # import ros stuff
