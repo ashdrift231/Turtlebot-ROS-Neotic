@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
+# import required libraries
 from re import T
 import rospy
 import threading
-
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist
@@ -12,51 +12,56 @@ import tf.transformations as tftr
 from numpy import matrix, cos, arctan2, sqrt, pi, sin, cos
 import numpy as np
 
-
-
+# define the Task1 class
 class Task1:
-
+    # define the constructor
     def __init__(self):
+        # create a lock object to prevent simultaneous access to shared resources
         self.lock = threading.Lock()
+        # get the publishing rate from the parameter server
         self.RATE = rospy.get_param('/rate', 50)
-
+        # set the initial delta time and time start values
         self.dt = 0.0
         self.time_start = 0.0
+        # set the end flag to False
         self.end = False
-
+        # set the initial position of the robot
         self.pose_init = [0.0, 0.0, 0.0]
+        # set the flag variable to True
         self.flag = True
 
-        "Desired values setup"
-        # rotation matrix [4x4] from `world` frame to `body`
+        # set up the desired values
+        # create a rotation matrix from 'world' frame to 'body' frame
         self.bTw = tftr.euler_matrix(-np.pi, 0.0, 0.0, 'rxyz')
-
-        # in `world` frame
-        self.A = rospy.get_param('/A', 90.0)    # [degrees]
+        # set the desired pose in 'world' frame
+        self.A = rospy.get_param('/A', 90.0)
         self.pose_des = rospy.get_param('/pose_des', [0.5, 0.0, 2.0])
-             
-        # in 'body' frame
+        # transform the desired pose to 'body' frame
         self.pose_des = self.transform_pose(self.pose_des)
         print(self.pose_des.T)
         self.rot_z_des = 0.0
 
-        "Controllers"
+        # set up the controllers
         #self.pose_controller = PID([0.1, 0.0, 0.0], 
-         #                          [0.0, 0.0, 0.0],
-          #                         [0.1, 0.0, 0.0])
+        #                           [0.0, 0.0, 0.0],
+        #                           [0.1, 0.0, 0.0])
         #self.orientation_controller = PID(5.0, 2.0, 0.0)
 
-        "ROS stuff"
+        # set up ROS publishers and subscribers
         self.pub_cmd_vel = rospy.Publisher("/cmd_vel", Twist, queue_size=1, latch=False)
         self.sub_odom = rospy.Subscriber("/odom", Odometry, self.odometry_callback)
 
-
+    # define the transform_pose method
     def transform_pose(self, pose_w):
-        # in 'body' frame
+        # transform the pose in 'world' frame to 'body' frame
         pose_des = self.bTw * np.matrix([pose_w[0], pose_w[1], pose_w[2], 0.0]).T
         return pose_des[:3]
-            
+
+    # define the odometry_callback method
     def odometry_callback(self, msg):
+        """
+        Callback function that is called each time a new odometry message is received.
+        """
         self.lock.acquire()
         # read current robot state
         cur_position = msg.pose.pose.position
@@ -91,6 +96,9 @@ class Task1:
         self.lock.release()
     
     def spin(self):
+        """
+        Main loop function that executes the task and controls the robot.
+        """
         rospy.loginfo('Task started!')
         rate = rospy.Rate(self.RATE)
 
